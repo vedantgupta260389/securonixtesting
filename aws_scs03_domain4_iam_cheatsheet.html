@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS SCS-C03 — Domain 4: Identity and Access Management</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; line-height: 1.6; }
+  .wrapper { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  h1 { font-size: 26px; font-weight: 600; color: #f8fafc; }
+  h2 { font-size: 18px; font-weight: 500; color: #f1f5f9; margin-bottom: 12px; }
+  h3 { font-size: 14px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 8px; }
+
+  .subtitle { font-size: 14px; color: #64748b; margin-top: 4px; margin-bottom: 2rem; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.5rem; }
+  .tab { padding: 6px 16px; font-size: 13px; font-weight: 500; border: 1px solid #334155; border-radius: 6px; cursor: pointer; background: transparent; color: #94a3b8; transition: all 0.15s; }
+  .tab:hover { background: #1e293b; color: #e2e8f0; }
+  .tab.active { background: #1e40af; color: #bfdbfe; border-color: #3b82f6; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; margin-bottom: 12px; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-bottom: 12px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
+
+  .metric { background: #0f172a; border-radius: 8px; padding: 16px; text-align: center; border: 1px solid #334155; }
+  .metric-val { font-size: 26px; font-weight: 600; color: #60a5fa; }
+  .metric-label { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+  ul { list-style: none; padding: 0; }
+  ul li { font-size: 13px; color: #94a3b8; padding: 5px 0; border-bottom: 1px solid #1e293b; display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
+  ul li:last-child { border-bottom: none; }
+  ul li::before { content: "›"; color: #475569; flex-shrink: 0; }
+  ul li strong { color: #cbd5e1; }
+
+  .hl { font-size: 13px; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; gap: 12px; align-items: flex-start; line-height: 1.5; }
+  .hl-label { font-weight: 600; flex-shrink: 0; min-width: 130px; font-size: 12px; }
+  .hl-red { background: #450a0a; color: #fca5a5; }
+  .hl-amber { background: #431407; color: #fcd34d; }
+  .hl-green { background: #052e16; color: #86efac; }
+  .hl-blue { background: #0c1a3a; color: #93c5fd; }
+  .hl-purple { background: #2e1065; color: #c4b5fd; }
+
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; display: inline-block; }
+  .badge-red { background: #450a0a; color: #fca5a5; }
+  .badge-amber { background: #431407; color: #fcd34d; }
+  .badge-blue { background: #0c1a3a; color: #93c5fd; }
+  .badge-green { background: #052e16; color: #86efac; }
+  .badge-purple { background: #2e1065; color: #c4b5fd; }
+  .badge-coral { background: #3b0a00; color: #fdba74; }
+
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .comp-header { font-size: 13px; font-weight: 600; padding: 8px 12px; border-radius: 6px 6px 0 0; }
+  .comp-body { border: 1px solid #334155; border-radius: 0 0 6px 6px; padding: 10px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th { text-align: left; padding: 8px 10px; border-bottom: 1px solid #334155; font-weight: 600; color: #cbd5e1; font-size: 12px; }
+  td { padding: 8px 10px; border-bottom: 1px solid #1e293b; color: #94a3b8; vertical-align: top; line-height: 1.5; }
+  tr:last-child td { border-bottom: none; }
+
+  .q-block { margin-bottom: 16px; }
+  .q { font-size: 14px; font-weight: 600; color: #e2e8f0; margin-bottom: 8px; line-height: 1.5; }
+  .a { font-size: 13px; color: #94a3b8; line-height: 1.6; padding: 10px 14px; background: #0f172a; border-left: 3px solid #3b82f6; border-radius: 0 6px 6px 0; }
+  .a code { font-family: 'Courier New', monospace; font-size: 12px; background: #1e293b; color: #67e8f9; padding: 1px 5px; border-radius: 4px; }
+
+  .tip { font-size: 12.5px; color: #fcd34d; background: #431407; border: 1px solid #854d0e; border-radius: 6px; padding: 8px 12px; margin-top: 10px; line-height: 1.5; }
+  .tip strong { color: #fef08a; }
+
+  code { font-family: 'Courier New', monospace; font-size: 12px; background: #1e293b; color: #67e8f9; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <h1>AWS SCS-C03 — Domain 4: Identity and Access Management</h1>
+  <p class="subtitle">Exam weight: ~16% &nbsp;·&nbsp; High-yield revision cheatsheet for security practitioners</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('core', this)">Core Concepts</button>
+    <button class="tab" onclick="show('policies', this)">Policy Types</button>
+    <button class="tab" onclick="show('services', this)">Key Services</button>
+    <button class="tab" onclick="show('advanced', this)">Advanced Topics</button>
+    <button class="tab" onclick="show('exam', this)">Exam Q&amp;A</button>
+    <button class="tab" onclick="show('faq', this)">FAQ</button>
+    <button class="tab" onclick="show('gotchas', this)">Gotchas &amp; Tips</button>
+  </div>
+
+  <!-- CORE CONCEPTS -->
+  <div id="core" class="section active">
+    <div class="grid3">
+      <div class="metric"><div class="metric-val">~16%</div><div class="metric-label">Exam domain weight</div></div>
+      <div class="metric"><div class="metric-val">7</div><div class="metric-label">Policy types to master</div></div>
+      <div class="metric"><div class="metric-val">DENY</div><div class="metric-label">Explicit Deny wins always</div></div>
+    </div>
+
+    <div class="card">
+      <h2>IAM policy evaluation logic — decision flow</h2>
+      <div class="hl hl-red"><span class="hl-label">Step 1 — Explicit Deny</span><span>Explicit Deny anywhere in any applicable policy = DENY. No exceptions whatsoever.</span></div>
+      <div class="hl hl-amber"><span class="hl-label">Step 2 — SCPs</span><span>Service Control Policies define maximum permissions. Must allow the action or it's denied. Applies to all member accounts.</span></div>
+      <div class="hl hl-purple"><span class="hl-label">Step 3 — Resource Policy</span><span>If present and grants principal access, Allow may apply even without identity policy (same-account only).</span></div>
+      <div class="hl hl-blue"><span class="hl-label">Step 4 — Identity Policy</span><span>IAM user/role policy must explicitly Allow the action.</span></div>
+      <div class="hl hl-green"><span class="hl-label">Step 5 — Perm Boundary</span><span>Permission Boundaries constrain maximum effective permissions. Must also allow.</span></div>
+      <div class="hl hl-red"><span class="hl-label">Default</span><span>Implicit Deny — all access denied unless explicitly allowed.</span></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>IAM principals</h2>
+        <ul>
+          <li><strong>Root account</strong> — unrestricted; protect with MFA; never use for daily ops</li>
+          <li><strong>IAM Users</strong> — long-term credentials (password + access keys)</li>
+          <li><strong>IAM Roles</strong> — short-term creds via STS; preferred for all workloads</li>
+          <li><strong>IAM Groups</strong> — attach policies to multiple users; NOT a principal in policies</li>
+          <li><strong>Federated identities</strong> — SAML 2.0, OIDC, Cognito, AWS SSO</li>
+          <li><strong>Service principals</strong> — AWS services acting on your behalf (e.g., ec2.amazonaws.com)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Credential types &amp; risk</h2>
+        <ul>
+          <li><strong>Access Key ID + Secret</strong> — programmatic; rotate ≤90 days; never hardcode</li>
+          <li><strong>Short-term STS creds</strong> — always preferred; expire automatically</li>
+          <li><strong>Instance profiles</strong> — attach roles to EC2; no long-term creds needed</li>
+          <li><strong>IRSA</strong> — EKS pods assume role via OIDC per service account</li>
+          <li><strong>Credential Report</strong> — lists all users + key age, MFA status, last used</li>
+          <li><strong>IAM Access Analyzer</strong> — identifies external access; unused access findings</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Trust policy vs. permissions policy <span class="badge badge-amber">Classic exam trap</span></h2>
+      <div class="comparison">
+        <div>
+          <div class="comp-header" style="background:#2e1065;color:#c4b5fd">Trust Policy — Who can assume this role</div>
+          <div class="comp-body">
+            <ul>
+              <li>Attached to IAM Role as the "trust relationship"</li>
+              <li>Specifies Principal allowed to call <code>sts:AssumeRole</code></li>
+              <li>Can trust AWS account, IAM user, role, service, SAML IdP, OIDC</li>
+              <li>Cross-account: requires trust in role + identity policy in source account</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="comp-header" style="background:#0c1a3a;color:#93c5fd">Permissions Policy — What the role can do</div>
+          <div class="comp-body">
+            <ul>
+              <li>Identity-based policy defining allowed actions on resources</li>
+              <li>Evaluated after trust relationship is established</li>
+              <li>Subject to SCPs and permission boundaries</li>
+              <li>Both policies must align for access to succeed</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POLICY TYPES -->
+  <div id="policies" class="section">
+    <div class="card">
+      <h2>All 7 policy types — evaluated in this order</h2>
+      <table>
+        <thead>
+          <tr><th>Policy Type</th><th>Scope</th><th>Attached To</th><th>Key Characteristic</th><th>Exam Focus</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-red">SCP</span> Service Control Policy</td>
+            <td>Org-level</td>
+            <td>OU or Account</td>
+            <td>Sets max permissions; does NOT grant access. Root user is restricted.</td>
+            <td>SCP Deny; does not apply to management account or service-linked roles</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-blue">Identity-based</span></td>
+            <td>Account-level</td>
+            <td>User, Role, Group</td>
+            <td>Grants permissions to principal. Managed (AWS/Customer) or Inline.</td>
+            <td>AWS Managed vs Customer Managed vs Inline differences</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-green">Resource-based</span></td>
+            <td>Resource-level</td>
+            <td>S3, SQS, KMS, Lambda, SNS</td>
+            <td>Specifies who (Principal) can access. Cross-account requires both sides allow.</td>
+            <td>Cross-account without role assumption; KMS key policy requirement</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-purple">Permission Boundary</span></td>
+            <td>Account-level</td>
+            <td>IAM User or Role only</td>
+            <td>Max permissions a principal can have. Does NOT grant access by itself.</td>
+            <td>Delegated admin scenario; prevent privilege escalation</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-amber">Session Policy</span></td>
+            <td>Session-level</td>
+            <td>Passed during AssumeRole</td>
+            <td>Restricts that session only. Cannot expand beyond role's permissions.</td>
+            <td>Scoping down temporary credentials for specific task</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-coral">ACL</span></td>
+            <td>Resource-level</td>
+            <td>S3 buckets/objects, VPC</td>
+            <td>Legacy; cannot specify IAM principals, only AWS accounts.</td>
+            <td>S3 Object Ownership; when to disable ACLs</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-blue">Endpoint Policy</span></td>
+            <td>VPC Endpoint</td>
+            <td>Gateway/Interface endpoints</td>
+            <td>Controls which principals/resources reachable from VPC. Does not replace bucket policy.</td>
+            <td>Restrict S3 access to within-VPC only</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>Policy structure — critical fields</h2>
+        <ul>
+          <li><strong>Version</strong> — always "2012-10-17"; required for policy variables</li>
+          <li><strong>Effect</strong> — Allow or Deny; Deny overrides Allow</li>
+          <li><strong>Principal</strong> — who (only in resource-based + trust policies)</li>
+          <li><strong>Action</strong> — service:operation; supports wildcards</li>
+          <li><strong>Resource</strong> — ARN; "*" = all resources</li>
+          <li><strong>Condition</strong> — evaluated last; must be true for statement to apply</li>
+          <li><strong>NotAction/NotPrincipal/NotResource</strong> — inverse matching; dangerous if misused</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>High-value condition keys</h2>
+        <ul>
+          <li><code>aws:SourceIp</code> — by caller IP; NOT for AWS service calls from within AWS</li>
+          <li><code>aws:SourceVpc / aws:SourceVpce</code> — restrict to VPC or specific endpoint</li>
+          <li><code>aws:PrincipalOrgID</code> — restrict to principals in your AWS Organization</li>
+          <li><code>aws:RequestedRegion</code> — restrict to specific regions (SCP use case)</li>
+          <li><code>aws:MultiFactorAuthPresent</code> — enforce MFA for sensitive actions</li>
+          <li><code>sts:ExternalId</code> — confused deputy protection in cross-account roles</li>
+          <li><code>aws:PrincipalTag / aws:ResourceTag</code> — ABAC; dynamic tag-based access</li>
+          <li><code>aws:CalledVia</code> — restrict to calls made through specific AWS services</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Permission Boundaries — deep dive <span class="badge badge-amber">High-frequency exam topic</span></h2>
+      <div class="hl hl-green"><span class="hl-label">Purpose</span><span>Delegate IAM management without risk of privilege escalation. Caps what delegated user/role can ever do.</span></div>
+      <div class="hl hl-blue"><span class="hl-label">Evaluation</span><span>Effective permissions = intersection(identity policy, permission boundary). Both must allow the action.</span></div>
+      <div class="hl hl-purple"><span class="hl-label">Scope</span><span>Only applies to IAM users and roles. Does NOT affect resource-based policies or service-linked roles.</span></div>
+      <div class="hl hl-amber"><span class="hl-label">Key Scenario</span><span>Dev team can create IAM roles, but boundary prevents them from granting Admin access — even if their own policy allows it.</span></div>
+      <div class="tip"><strong>Exam trap:</strong> A permission boundary does NOT grant permissions — it only limits them. The role needs BOTH the identity policy AND the boundary to allow.</div>
+    </div>
+  </div>
+
+  <!-- KEY SERVICES -->
+  <div id="services" class="section">
+    <div class="grid2">
+      <div class="card">
+        <h2>AWS STS — Security Token Service</h2>
+        <ul>
+          <li><strong>AssumeRole</strong> — same/cross-account; returns temp creds (15min–12hr, default 1hr)</li>
+          <li><strong>AssumeRoleWithSAML</strong> — federate via SAML 2.0 IdP (ADFS, Okta); console SSO</li>
+          <li><strong>AssumeRoleWithWebIdentity</strong> — OIDC-based; Cognito/IRSA; prefer Cognito for mobile</li>
+          <li><strong>GetSessionToken</strong> — IAM user + MFA; returns temp creds with same permissions</li>
+          <li><strong>GetFederationToken</strong> — up to 36hr; legacy pattern, avoid in modern arch</li>
+          <li><strong>ExternalId</strong> — passed in AssumeRole to prevent confused deputy attacks</li>
+          <li><strong>Regional STS</strong> — recommended for resilience; must enable per region</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>AWS IAM Identity Center (SSO) <span class="badge badge-green">Modern standard</span></h2>
+        <ul>
+          <li>Centralized SSO for all AWS accounts in Organization + SAML apps</li>
+          <li><strong>Permission Sets</strong> — define IAM policies provisioned into each account</li>
+          <li>Identity sources: built-in directory, AWS Managed AD, AD Connector, external IdP via SCIM + SAML</li>
+          <li><strong>SCIM provisioning</strong> — auto-sync users/groups from IdP (Okta, Azure AD)</li>
+          <li>ABAC support using IdP attributes in permission sets</li>
+          <li>Multi-account access without creating IAM users per account</li>
+          <li>Formerly "AWS SSO" — renamed to IAM Identity Center in 2022</li>
+        </ul>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Amazon Cognito</h2>
+        <ul>
+          <li><strong>User Pools</strong> — user directory; sign-up/sign-in, MFA, federation; issues JWTs</li>
+          <li><strong>Identity Pools</strong> — exchanges tokens (User Pool, Google, SAML) for AWS STS creds</li>
+          <li>Unauthenticated identities — guest access with limited AWS permissions</li>
+          <li>Enhanced vs basic authflow — enhanced: Cognito manages role selection</li>
+          <li>Token validity: ID/Access tokens 1hr default; refresh token up to 10 years</li>
+          <li><strong>Exam pattern:</strong> mobile/web app needing AWS resource access → Cognito Identity Pool + STS</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>IAM Access Analyzer</h2>
+        <ul>
+          <li>Identifies resources accessible from outside your zone of trust (account or Org)</li>
+          <li><strong>Supported resources:</strong> S3, IAM roles, KMS keys, Lambda, SQS, Secrets Manager, SNS</li>
+          <li>External access findings + unused access findings</li>
+          <li><strong>Policy validation</strong> — checks against IAM best practices, security warnings, errors</li>
+          <li><strong>Policy generation</strong> — generates least-privilege policy from CloudTrail activity</li>
+          <li>Archive rules — suppress expected/approved external access findings</li>
+          <li>Unused access analysis — roles not used in 90+ days flagged for review</li>
+        </ul>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>AWS Directory Service</h2>
+        <ul>
+          <li><strong>AWS Managed Microsoft AD</strong> — full AD in AWS; supports trusts to on-prem AD</li>
+          <li><strong>AD Connector</strong> — proxy to on-prem AD; no users stored in AWS; MFA via RADIUS</li>
+          <li><strong>Simple AD</strong> — Samba-based; no trusts; small deployments only</li>
+          <li>Trust types: one-way (outgoing/incoming), two-way, forest vs external</li>
+          <li>Used by: IAM Identity Center, WorkSpaces, RDS (Windows auth), FSx for Windows</li>
+          <li><strong>Exam:</strong> on-prem users → AWS → AD Connector or Managed AD + Identity Center</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>AWS Organizations &amp; SCPs</h2>
+        <ul>
+          <li>Management account — root of org; NOT subject to SCPs</li>
+          <li>SCPs apply to all principals (including root user) in member accounts</li>
+          <li>SCPs do NOT apply to service-linked roles</li>
+          <li><strong>FullAWSAccess</strong> — default SCP allowing all; add Deny SCPs on top</li>
+          <li><strong>Allow-list:</strong> remove FullAWSAccess, add explicit Allows (tightest)</li>
+          <li><strong>Deny-list:</strong> keep FullAWSAccess, add explicit Denies (most common)</li>
+          <li>Effective access = SCP Allow ∩ IAM Policy Allow</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADVANCED TOPICS -->
+  <div id="advanced" class="section">
+    <div class="card">
+      <h2>Cross-account access patterns <span class="badge badge-red">High exam weight</span></h2>
+      <table>
+        <thead>
+          <tr><th>Pattern</th><th>Mechanism</th><th>When to Use</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Role assumption (sts:AssumeRole)</td>
+            <td>Account A assumes role in B. Trust policy in B + identity policy in A must both allow.</td>
+            <td>Standard cross-account EC2/Lambda/human access. Preferred method.</td>
+          </tr>
+          <tr>
+            <td>Resource-based policy (direct)</td>
+            <td>Account B resource policy grants Account A principal directly. No role switch.</td>
+            <td>S3, SQS, SNS, KMS cross-account. Service-to-service patterns.</td>
+          </tr>
+          <tr>
+            <td>Cross-account + ExternalId</td>
+            <td>Third party must supply ExternalId in AssumeRole call. Prevents confused deputy.</td>
+            <td>Third-party SaaS/vendor integration into your account.</td>
+          </tr>
+          <tr>
+            <td>Resource Access Manager (RAM)</td>
+            <td>Shares AWS resources (subnets, Transit GW, Route53) across accounts in Org.</td>
+            <td>Shared VPC networking, centralized security tooling.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>ABAC vs RBAC</h2>
+        <h3>RBAC — Role-Based Access Control</h3>
+        <ul>
+          <li>Access based on IAM role/group membership</li>
+          <li>Scale problem: N roles × M resources = policy explosion</li>
+          <li>Valid for coarse-grained, stable access patterns</li>
+        </ul>
+        <h3>ABAC — Attribute-Based Access Control</h3>
+        <ul>
+          <li>Access based on tags on principal AND resource</li>
+          <li>Use <code>aws:PrincipalTag</code> + <code>aws:ResourceTag</code> in conditions</li>
+          <li>Single policy scales to thousands of resources automatically</li>
+          <li>Requires consistent tagging strategy across org</li>
+          <li><strong>Exam:</strong> "scale IAM without new policies per resource" → ABAC</li>
+        </ul>
+        <div class="tip"><strong>Classic ABAC:</strong> Allow action if <code>aws:PrincipalTag/Project</code> equals <code>aws:ResourceTag/Project</code></div>
+      </div>
+      <div class="card">
+        <h2>Privilege escalation vectors</h2>
+        <div class="hl hl-red"><span class="hl-label">iam:CreatePolicyVersion</span><span>Create new version with Admin perms + set as default. Mitigate: deny SetDefaultPolicyVersion separately.</span></div>
+        <div class="hl hl-red"><span class="hl-label">iam:AttachUserPolicy</span><span>User attaches AdministratorAccess to themselves. Require permission boundary on delegated IAM admins.</span></div>
+        <div class="hl hl-red"><span class="hl-label">iam:PassRole</span><span>User passes privileged role to Lambda/EC2. Restrict iam:PassRole to specific role ARNs. Frequently tested.</span></div>
+        <div class="hl hl-amber"><span class="hl-label">sts:AssumeRole *</span><span>Wildcard trust allows any principal. Always specify exact principals in trust policy.</span></div>
+        <div class="hl hl-amber"><span class="hl-label">CreateAccessKey (others)</span><span>User creates key for another user and exfiltrates. Audit with IAM Access Analyzer + Credential Report.</span></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>Federation deep dive</h2>
+        <h3>SAML 2.0 federation</h3>
+        <ul>
+          <li>IdP authenticates user → SAML assertion → STS validates → issues temp creds</li>
+          <li>Requires IAM SAML Provider + trust in role</li>
+          <li>Console: AssumeRoleWithSAML → AWS sign-in endpoint redirect</li>
+          <li>SAML attributes map to IAM role via RoleSessionName, Role ARN attributes</li>
+        </ul>
+        <h3>OIDC federation</h3>
+        <ul>
+          <li>IdP issues JWT → STS validates signature against OIDC provider → issues creds</li>
+          <li>Use cases: GitHub Actions CI/CD, IRSA (EKS), public IdPs</li>
+          <li>Thumbprint required when creating OIDC provider in IAM</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Compute IAM patterns</h2>
+        <ul>
+          <li><strong>EC2 instance profile</strong> — attached role; creds via IMDS (169.254.169.254)</li>
+          <li><strong>IMDSv2 required</strong> — prevents SSRF-based metadata theft; enforce hop limit 1</li>
+          <li><strong>Lambda execution role</strong> — what Lambda can access; resource policy = who invokes</li>
+          <li><strong>ECS task role</strong> — app permissions (what the container does)</li>
+          <li><strong>ECS task execution role</strong> — ECS agent permissions (ECR pull, CloudWatch Logs)</li>
+          <li><strong>IRSA (EKS)</strong> — pod annotation + OIDC provider → AssumeRoleWithWebIdentity per pod</li>
+          <li><strong>Service-linked roles</strong> — not subject to SCPs or permission boundaries</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAM Q&A -->
+  <div id="exam" class="section">
+    <div class="card">
+      <h2>High-frequency exam questions &amp; answers</h2>
+
+      <div class="q-block">
+        <div class="q">Q1. A user has an IAM policy allowing <code>s3:DeleteObject</code>. An SCP on the account denies <code>s3:DeleteObject</code>. What is the result?</div>
+        <div class="a">Access is DENIED. SCPs are evaluated before identity policies. The SCP Deny overrides any IAM policy Allow. Effective permission is the intersection of SCP permissions AND identity policy permissions.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q2. Allow IAM user in Account A to access S3 bucket in Account B without assuming a role. How?</div>
+        <div class="a">Add a resource-based bucket policy in Account B explicitly granting the Account A IAM user access. Also ensure Account A has an identity policy allowing the S3 action. For cross-account with resource-based policies, BOTH the resource policy (Account B) AND identity policy (Account A) must allow the action.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q3. Developer needs to create IAM roles but must NOT create a role with AdministratorAccess. Recommended solution?</div>
+        <div class="a">Attach a Permission Boundary to the developer's IAM role that excludes AdministratorAccess. Additionally, require the developer to always apply that same boundary when creating new roles (enforce via IAM condition <code>iam:PermissionsBoundary</code>). This prevents privilege escalation through role creation even if their own policy allows iam:CreateRole.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q4. A third-party vendor needs access to your AWS account. Prevent the confused deputy problem. How?</div>
+        <div class="a">Create an IAM role with the vendor's account in the trust policy. Require an <code>sts:ExternalId</code> condition. The vendor must pass this ExternalId (a shared secret between you and that specific vendor) when calling AssumeRole. This ensures only your vendor instance can assume the role, not other customers of the same vendor.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q5. EC2 in private VPC should only access S3 within the same account. Enforce this.</div>
+        <div class="a">Create a Gateway VPC Endpoint for S3. Attach an endpoint policy restricting access to your account's buckets only. Add a bucket policy condition using <code>aws:SourceVpce</code> to deny requests not from the VPC endpoint. Traffic stays within AWS network and is account-scoped.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q6. Prevent any IAM user from disabling CloudTrail across all accounts. Most scalable solution?</div>
+        <div class="a">Create an SCP at the root OU level (or all member OUs) explicitly denying <code>cloudtrail:DeleteTrail</code>, <code>cloudtrail:StopLogging</code>, and <code>cloudtrail:UpdateTrail</code>. SCPs apply to all principals in all member accounts. Note: the management account is exempt from SCPs — protect it separately with IAM policies and strict MFA enforcement.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q7. On-premises AD users need AWS Management Console access. Recommended architecture?</div>
+        <div class="a">Deploy IAM Identity Center connected to AWS Managed Microsoft AD (with AD trust to on-prem) or AD Connector (proxy mode). Users authenticate to on-prem AD → IAM Identity Center provisions access via Permission Sets. No IAM users created per account. Centralized, scalable, and supports MFA via AD.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q8. An IAM role has all S3 actions allowed. A session policy passed during AssumeRole only allows <code>s3:GetObject</code>. What can the session do?</div>
+        <div class="a">Only <code>s3:GetObject</code>. Session policies can only restrict — never expand — beyond the role's identity policy. Effective session permissions = intersection(role policy, session policy). Session policies are evaluated last and act as an additional filter.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q9. Lambda in Account A needs to call KMS in Account B. How do you configure this?</div>
+        <div class="a">Two requirements: (1) KMS key policy in Account B must grant the Lambda's execution role ARN permission to use the key (kms:Decrypt, kms:GenerateDataKey etc.). (2) Lambda's execution role in Account A must have an IAM policy allowing the kms actions on that specific key ARN. KMS cross-account requires BOTH key policy AND identity policy to allow — unlike S3 where one side can be sufficient in same-account.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Q10. You need to scale IAM access to thousands of S3 buckets without creating a new policy for each bucket. Solution?</div>
+        <div class="a">Implement ABAC (Attribute-Based Access Control). Tag all S3 buckets with consistent tags (e.g., Project, Environment). Tag IAM roles with matching tags. Create one policy with conditions: <code>StringEquals: { "aws:PrincipalTag/Project": "${aws:ResourceTag/Project}" }</code>. This single policy dynamically permits access when principal tags match resource tags — no new policies needed for new buckets.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div id="faq" class="section">
+    <div class="card">
+      <h2>Frequently asked — conceptual clarifications</h2>
+
+      <div class="q-block">
+        <div class="q">Can an SCP grant permissions?</div>
+        <div class="a">No. SCPs only define the maximum permissions available — they act as guardrails (a ceiling). They never directly grant permissions. A principal also needs an identity-based or resource-based policy that allows the action. Think of SCPs as a ceiling, not a key.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Does the SCP apply to the management account?</div>
+        <div class="a">No. The management (root/payer) account is NOT subject to SCPs. This is a critical exam point. SCPs only apply to member accounts and their OUs. Protect the management account separately using strict IAM policies and MFA enforcement.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">What is the difference between IAM Identity Center and IAM SAML federation?</div>
+        <div class="a">IAM SAML federation (AssumeRoleWithSAML) requires manually creating IAM roles and mapping SAML attributes in EACH account. IAM Identity Center centralizes this — one IdP integration, Permission Sets automatically provisioned to all accounts. Identity Center is the recommended modern approach for multi-account orgs. Use IAM SAML federation for specific custom/legacy integrations.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">What is a service-linked role?</div>
+        <div class="a">A pre-defined IAM role by an AWS service with exactly the permissions that service needs to call other AWS services on your behalf. Created automatically when you enable the service. You cannot modify its trust policy or permissions. Cannot be deleted while associated resources exist. NOT subject to SCPs or permission boundaries. Examples: AWSServiceRoleForECS, AWSServiceRoleForAutoScaling.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">Same-account: if both identity policy and resource policy exist, do both need to allow?</div>
+        <div class="a">No — same-account is more permissive. If EITHER the identity policy OR the resource policy allows the action (and no explicit Deny exists), access is granted. Cross-account is stricter: BOTH the identity policy in the source account AND the resource policy in the target account must allow the action.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">What is IMDSv2 and why does it matter for IAM security?</div>
+        <div class="a">IMDSv1 allows simple GET requests to fetch IAM role credentials from EC2 metadata, exploitable via SSRF. IMDSv2 requires a session-oriented PUT request with a token first (preventing SSRF exploitation). Enforce via EC2 launch settings, AWS Config rule (ec2-imdsv2-check), or SCP denying ec2:RunInstances when HttpTokens is not "required".</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">How does IRSA work for EKS pods?</div>
+        <div class="a">An OIDC provider is configured in IAM for the EKS cluster. Pod service accounts are annotated with a role ARN. The EKS pod receives a projected service account token, then calls AssumeRoleWithWebIdentity. The IAM role trust policy trusts the cluster's OIDC provider with a condition matching the namespace/service account. Each pod gets its own scoped AWS credentials — no shared node-level IAM role.</div>
+      </div>
+
+      <div class="q-block">
+        <div class="q">KMS key policy — what's unique vs other resource policies?</div>
+        <div class="a">KMS does NOT automatically grant the account root or admin access to a key — unlike S3 or SQS. If no key policy exists, nobody can use the key. The default KMS key policy must explicitly grant <code>kms:*</code> to the account root so IAM policies can further delegate access. This makes KMS key policy management critical and a frequent exam topic.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOTCHAS -->
+  <div id="gotchas" class="section">
+    <div class="card">
+      <h2>Top exam gotchas &amp; traps <span class="badge badge-red">Read carefully</span></h2>
+      <div class="hl hl-red"><span class="hl-label">Gotcha 1</span><span>IAM Groups are NOT principals — you cannot reference a group in a resource-based policy or trust policy. Groups are only for attaching policies to multiple users.</span></div>
+      <div class="hl hl-red"><span class="hl-label">Gotcha 2</span><span>Permission boundaries do NOT grant permissions — they only restrict. Need both boundary AND identity policy to allow.</span></div>
+      <div class="hl hl-red"><span class="hl-label">Gotcha 3</span><span>SCPs do NOT apply to the management account or service-linked roles. Frequently used as distractors.</span></div>
+      <div class="hl hl-amber"><span class="hl-label">Gotcha 4</span><span>Cross-account S3: if role assumption is used, only the assumed role's identity policy needs to allow S3. If using direct resource policy cross-account, both sides must allow.</span></div>
+      <div class="hl hl-amber"><span class="hl-label">Gotcha 5</span><span><code>aws:SourceIp</code> doesn't work for AWS service calls (Lambda→S3, EC2→S3). Use <code>aws:VpcSourceIp</code> or <code>aws:SourceVpce</code> instead.</span></div>
+      <div class="hl hl-amber"><span class="hl-label">Gotcha 6</span><span>NotAction with Effect: Allow is dangerous. "Allow NotAction: sts:AssumeRole" allows EVERYTHING except that action — easy to over-permit. Prefer explicit allow lists.</span></div>
+      <div class="hl hl-amber"><span class="hl-label">Gotcha 7</span><span>IAM policy size limits: inline policy max 2KB (user), 5KB (role), 10KB (group). Managed policy max 6,144 chars. Up to 5 managed policy versions stored.</span></div>
+      <div class="hl hl-blue"><span class="hl-label">Gotcha 8</span><span>S3 Block Public Access (BPA) is separate from bucket policies/ACLs and overrides them. Even if bucket policy allows public access, BPA blocks it at account or bucket level.</span></div>
+      <div class="hl hl-blue"><span class="hl-label">Gotcha 9</span><span>KMS does NOT auto-grant account root access. Key policy must explicitly grant it. If no key policy exists, nobody can use the key — even the account admin.</span></div>
+      <div class="hl hl-blue"><span class="hl-label">Gotcha 10</span><span>GetSessionToken does NOT reduce permissions — returns creds with same permissions as the calling IAM user. Use session policies (passed during AssumeRole) to scope down.</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Quick decision tree — which policy type to use?</h2>
+      <ul>
+        <li><strong>Restrict entire Org from dangerous actions</strong> → SCP at root/OU level</li>
+        <li><strong>Delegate IAM management without privilege escalation risk</strong> → Permission Boundary</li>
+        <li><strong>Cross-account S3/SQS/KMS without role switch</strong> → Resource-based policy</li>
+        <li><strong>Cross-account EC2/Lambda/ECS access</strong> → IAM Role + AssumeRole</li>
+        <li><strong>Scope down role permissions for one specific task/session</strong> → Session Policy</li>
+        <li><strong>Scale access to thousands of resources without new policies</strong> → ABAC (PrincipalTag + ResourceTag)</li>
+        <li><strong>On-prem AD users → multi-account AWS access</strong> → IAM Identity Center + AD Connector/Managed AD</li>
+        <li><strong>Mobile/web app needing AWS resource access</strong> → Cognito Identity Pools</li>
+        <li><strong>EKS pod needs scoped AWS permissions</strong> → IRSA (IAM Roles for Service Accounts)</li>
+        <li><strong>Prevent metadata credential theft on EC2</strong> → Enforce IMDSv2 (HttpTokens=required)</li>
+        <li><strong>Third-party vendor access — prevent confused deputy</strong> → Role + sts:ExternalId condition</li>
+        <li><strong>Discover external access to your resources</strong> → IAM Access Analyzer</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

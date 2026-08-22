@@ -1,0 +1,480 @@
+
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .wrap { padding: 1rem 0; font-family: var(--font-sans); }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tab { padding: 6px 14px; border: 0.5px solid var(--border-strong); border-radius: var(--radius); font-size: 13px; cursor: pointer; background: var(--surface-1); color: var(--text-secondary); transition: all .15s; }
+  .tab.active { background: var(--fill-accent); color: var(--on-accent); border-color: var(--fill-accent); }
+  .tab:hover:not(.active) { background: var(--surface-2); color: var(--text-primary); }
+  .section { display: none; }
+  .section.active { display: block; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .card { background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .card-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin: 0 0 8px; display: flex; align-items: center; gap: 6px; }
+  .badge { font-size: 11px; padding: 2px 7px; border-radius: 20px; font-weight: 500; }
+  .badge-blue { background: var(--bg-accent); color: var(--text-accent); }
+  .badge-red { background: var(--bg-danger); color: var(--text-danger); }
+  .badge-green { background: var(--bg-success); color: var(--text-success); }
+  .badge-warn { background: var(--bg-warning); color: var(--text-warning); }
+  ul { margin: 0; padding-left: 16px; }
+  li { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 4px; line-height: 1.5; }
+  li strong { color: var(--text-primary); font-weight: 500; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; border: 0.5px solid var(--border-strong); background: var(--surface-1); color: var(--text-secondary); }
+  .tip { background: var(--bg-warning); border: 0.5px solid var(--border-warning); border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 12px; color: var(--text-warning); }
+  .danger-box { background: var(--bg-danger); border: 0.5px solid var(--border-danger); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--text-danger); }
+  .flow { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .flow-node { font-size: 11.5px; background: var(--surface-1); border: 0.5px solid var(--border-strong); border-radius: 6px; padding: 3px 8px; color: var(--text-primary); white-space: nowrap; }
+  .flow-arrow { font-size: 13px; color: var(--text-muted); }
+  .section-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin: 14px 0 6px; }
+  code { font-family: var(--font-mono); font-size: 11.5px; background: var(--surface-1); padding: 1px 5px; border-radius: 4px; color: var(--text-primary); border: 0.5px solid var(--border); }
+  .full { grid-column: 1 / -1; }
+  @media (max-width: 520px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+</style>
+
+<div class="wrap">
+  <div class="tabs" id="tabs">
+    <button class="tab active" onclick="show('mindmap')">Mind map</button>
+    <button class="tab" onclick="show('policies')">Policies</button>
+    <button class="tab" onclick="show('roles')">Roles & STS</button>
+    <button class="tab" onclick="show('perms')">Permission logic</button>
+    <button class="tab" onclick="show('services')">Key services</button>
+    <button class="tab" onclick="show('exam')">Exam tips</button>
+  </div>
+
+  <!-- MIND MAP -->
+  <div class="section active" id="mindmap">
+    <div class="grid2">
+      <div class="card">
+        <p class="card-title"><span class="badge badge-blue">Core</span> IAM entities</p>
+        <ul>
+          <li><strong>Users</strong> — long-term credentials (access keys, password)</li>
+          <li><strong>Groups</strong> — attach policies to multiple users; cannot nest groups</li>
+          <li><strong>Roles</strong> — temporary credentials; assumed by services, users, or federated identities</li>
+          <li><strong>Policies</strong> — JSON permission documents attached to entities</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title"><span class="badge badge-red">Exam focus</span> Policy types</p>
+        <ul>
+          <li><strong>Identity-based</strong> — attached to users/groups/roles</li>
+          <li><strong>Resource-based</strong> — attached to resources (S3 bucket policy, KMS key policy)</li>
+          <li><strong>SCPs</strong> — org-level guardrails (do NOT grant, only limit)</li>
+          <li><strong>Permission boundaries</strong> — max permissions for an entity</li>
+          <li><strong>Session policies</strong> — passed at AssumeRole time</li>
+          <li><strong>ACLs</strong> — legacy, cross-account S3/object control</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title"><span class="badge badge-green">Auth</span> Auth & federation</p>
+        <ul>
+          <li><strong>SAML 2.0</strong> — enterprise SSO (ADFS, Okta)</li>
+          <li><strong>OIDC</strong> — web/mobile (Cognito, GitHub Actions)</li>
+          <li><strong>Cognito Identity Pools</strong> — guest + authenticated access to AWS</li>
+          <li><strong>AWS SSO / IAM Identity Center</strong> — multi-account SSO</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title"><span class="badge badge-warn">Audit</span> Monitoring & compliance</p>
+        <ul>
+          <li><strong>CloudTrail</strong> — who did what & when (API calls)</li>
+          <li><strong>IAM Access Analyzer</strong> — finds unintended external access</li>
+          <li><strong>Credential report</strong> — all users + credential status</li>
+          <li><strong>Access Advisor</strong> — last service usage per entity</li>
+          <li><strong>Config rules</strong> — detect non-compliant IAM settings</li>
+        </ul>
+      </div>
+      <div class="card full">
+        <p class="card-title">IAM evaluation hierarchy</p>
+        <div class="flow">
+          <span class="flow-node">Explicit Deny</span><span class="flow-arrow">→ wins always →</span>
+          <span class="flow-node">SCP</span><span class="flow-arrow">→</span>
+          <span class="flow-node">Perm boundary</span><span class="flow-arrow">→</span>
+          <span class="flow-node">Session policy</span><span class="flow-arrow">→</span>
+          <span class="flow-node">Identity policy</span><span class="flow-arrow">→</span>
+          <span class="flow-node">Resource policy</span><span class="flow-arrow">→</span>
+          <span class="flow-node">Default DENY</span>
+        </div>
+        <div class="tip">All applicable policies must allow (except for cross-account: resource policy alone can grant if it specifies the principal's account).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POLICIES -->
+  <div class="section" id="policies">
+    <div class="grid2">
+      <div class="card">
+        <p class="card-title">Policy structure (JSON)</p>
+        <ul>
+          <li><code>Version</code> — always <code>"2012-10-17"</code></li>
+          <li><code>Statement</code> — array of permission blocks</li>
+          <li><code>Effect</code> — <code>Allow</code> or <code>Deny</code></li>
+          <li><code>Action</code> — API operations e.g. <code>s3:GetObject</code></li>
+          <li><code>Resource</code> — ARN of the target resource</li>
+          <li><code>Principal</code> — who (only in resource-based & trust policies)</li>
+          <li><code>Condition</code> — optional conditional logic</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">Managed vs inline</p>
+        <ul>
+          <li><strong>AWS managed</strong> — pre-built, versioned by AWS</li>
+          <li><strong>Customer managed</strong> — your own reusable policies</li>
+          <li><strong>Inline</strong> — embedded in one entity; deleted with entity</li>
+        </ul>
+        <p class="section-label">Policy limits</p>
+        <ul>
+          <li>Managed policy max size: <strong>6,144 chars</strong></li>
+          <li>Inline policy max: <strong>2,048 chars</strong> per entity</li>
+          <li>10 managed policies per user/group/role</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">Condition operators (exam fav)</p>
+        <ul>
+          <li><code>StringEquals</code> / <code>StringLike</code> (wildcards)</li>
+          <li><code>ArnLike</code> — match ARN patterns</li>
+          <li><code>IpAddress</code> — source IP range</li>
+          <li><code>Bool</code> — <code>aws:SecureTransport</code>, <code>aws:MultiFactorAuthPresent</code></li>
+          <li><code>DateLessThan</code> — time-bound access</li>
+          <li><code>Null</code> — check if key exists</li>
+          <li><code>aws:PrincipalOrgID</code> — restrict to your org</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">Permission boundary rules</p>
+        <ul>
+          <li>Sets the <strong>maximum</strong> permissions; doesn't grant anything itself</li>
+          <li>Effective permission = intersection of identity policy AND boundary</li>
+          <li>Used to <strong>delegate admin safely</strong> (devs can create roles but not exceed boundary)</li>
+          <li>Does not limit resource-based policies or SCPs</li>
+        </ul>
+        <div class="danger-box">Boundary + no identity policy = no permissions even if boundary allows everything.</div>
+      </div>
+      <div class="card full">
+        <p class="card-title">SCPs — key rules</p>
+        <div class="grid2" style="margin-top:4px">
+          <ul>
+            <li>Applied to accounts/OUs in AWS Organizations</li>
+            <li><strong>Do NOT grant permissions</strong> — only restrict</li>
+            <li>Do NOT affect management account</li>
+            <li>Do NOT affect service-linked roles</li>
+          </ul>
+          <ul>
+            <li>Default SCP <code>FullAWSAccess</code> allows everything</li>
+            <li>Deny in SCP blocks even the account root user for that service</li>
+            <li>Inheritance: child OUs inherit parent SCP denies</li>
+            <li>Use <code>aws:RequestedRegion</code> to restrict regions via SCP</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLES & STS -->
+  <div class="section" id="roles">
+    <div class="grid2">
+      <div class="card">
+        <p class="card-title">Role components</p>
+        <ul>
+          <li><strong>Trust policy</strong> — who can assume the role (Principal)</li>
+          <li><strong>Permission policy</strong> — what the role can do</li>
+          <li><strong>Session duration</strong> — 1h default, up to 12h (role setting)</li>
+          <li><strong>External ID</strong> — prevents confused deputy in cross-account</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">STS API calls</p>
+        <ul>
+          <li><code>AssumeRole</code> — assume a role (same or cross-account)</li>
+          <li><code>AssumeRoleWithSAML</code> — SAML federation</li>
+          <li><code>AssumeRoleWithWebIdentity</code> — OIDC federation</li>
+          <li><code>GetSessionToken</code> — MFA-enforced short-term creds</li>
+          <li><code>GetFederationToken</code> — long-term for federated apps</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">Cross-account access flow</p>
+        <div class="flow" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <div class="flow" style="gap:4px">
+            <span class="flow-node">Account A user</span>
+            <span class="flow-arrow">→ calls AssumeRole →</span>
+            <span class="flow-node">Role in Account B</span>
+          </div>
+          <div class="flow" style="gap:4px">
+            <span class="flow-node">Trust policy</span>
+            <span class="flow-arrow">must list Account A principal</span>
+          </div>
+          <div class="flow" style="gap:4px">
+            <span class="flow-node">Account A identity policy</span>
+            <span class="flow-arrow">must allow sts:AssumeRole</span>
+          </div>
+        </div>
+        <div class="tip">Resource policies (S3, KMS) can grant cross-account without AssumeRole if the source account's identity policy also allows it.</div>
+      </div>
+      <div class="card">
+        <p class="card-title">Instance profiles & service roles</p>
+        <ul>
+          <li><strong>Instance profile</strong> — container for an IAM role attached to EC2</li>
+          <li>EC2 gets creds via IMDSv2 (<code>169.254.169.254</code>)</li>
+          <li><strong>Service-linked roles</strong> — pre-defined for AWS services; cannot edit trust policy</li>
+          <li>Lambda, ECS tasks get role via task/execution role ARN</li>
+        </ul>
+      </div>
+      <div class="card full">
+        <p class="card-title">IAM Identity Center (SSO)</p>
+        <div class="grid2" style="margin-top:4px">
+          <ul>
+            <li>Centralized access for multi-account and apps</li>
+            <li>Supports SAML/SCIM for external IdPs</li>
+            <li><strong>Permission sets</strong> — map to IAM roles in each account</li>
+            <li>Replaces account-level IAM users for human access</li>
+          </ul>
+          <ul>
+            <li>Attribute-based access control (ABAC) via user attributes</li>
+            <li>Temp credentials dispensed per session</li>
+            <li>Best practice: use over individual IAM users</li>
+            <li>Session duration controlled per permission set</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERMISSION LOGIC -->
+  <div class="section" id="perms">
+    <div class="grid2">
+      <div class="card">
+        <p class="card-title">Evaluation logic — same account</p>
+        <ul>
+          <li>Explicit <strong>Deny</strong> anywhere → final answer: DENY</li>
+          <li>SCP must allow (if Orgs used)</li>
+          <li>Permission boundary must allow (if set)</li>
+          <li>Session policy must allow (if AssumeRole with policy)</li>
+          <li>Identity policy OR resource policy must allow</li>
+          <li>Otherwise → implicit DENY</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">Evaluation logic — cross-account</p>
+        <ul>
+          <li>Both accounts must grant access</li>
+          <li>Account A: identity policy allows <code>sts:AssumeRole</code> on role B</li>
+          <li>Account B: role trust policy allows account A principal</li>
+          <li>For resource policies: requester's identity policy must allow too</li>
+          <li>SCP in both orgs must not deny</li>
+        </ul>
+        <div class="danger-box">Resource policy alone in cross-account ≠ sufficient without identity policy allowing it.</div>
+      </div>
+      <div class="card">
+        <p class="card-title">ABAC (attribute-based AC)</p>
+        <ul>
+          <li>Use tags on resources and IAM principals</li>
+          <li>Condition: <code>aws:ResourceTag/team</code> = <code>aws:PrincipalTag/team</code></li>
+          <li>Scales without modifying policies as teams grow</li>
+          <li>Works with IAM Identity Center attribute mappings</li>
+        </ul>
+        <div class="pill-row">
+          <span class="pill">PrincipalTag</span><span class="pill">ResourceTag</span><span class="pill">RequestTag</span>
+        </div>
+      </div>
+      <div class="card">
+        <p class="card-title">Confused deputy prevention</p>
+        <ul>
+          <li>Occurs when a service is tricked into acting on another account's behalf</li>
+          <li>Fix: use <code>aws:SourceArn</code> or <code>aws:SourceAccount</code> in role trust policy</li>
+          <li>Fix: require <code>ExternalId</code> in cross-account trust (3rd-party integrations)</li>
+        </ul>
+        <div class="tip">Always use sts:ExternalId when allowing 3rd-party vendors to assume your roles.</div>
+      </div>
+      <div class="card full">
+        <p class="card-title">Effective permissions matrix</p>
+        <div class="grid3" style="margin-top:4px">
+          <div>
+            <p class="section-label">With SCP</p>
+            <ul>
+              <li>SCP Allow + Identity Allow = <strong class="badge badge-green">✓ Allow</strong></li>
+              <li>SCP Deny + Identity Allow = <strong class="badge badge-red">✗ Deny</strong></li>
+              <li>SCP Allow + Identity Deny = <strong class="badge badge-red">✗ Deny</strong></li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label">With boundary</p>
+            <ul>
+              <li>Boundary Allow + Identity Allow = <strong class="badge badge-green">✓ Allow</strong></li>
+              <li>Boundary Deny + Identity Allow = <strong class="badge badge-red">✗ Deny</strong></li>
+              <li>Boundary Allow + no Identity = <strong class="badge badge-red">✗ Deny</strong></li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label">Resource policies</p>
+            <ul>
+              <li>Same acct: Identity OR Resource policy = <strong class="badge badge-green">✓ Allow</strong></li>
+              <li>Cross-acct: BOTH required</li>
+              <li>S3 ACLs legacy; prefer bucket policies</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEY SERVICES -->
+  <div class="section" id="services">
+    <div class="grid2">
+      <div class="card">
+        <p class="card-title">IAM Access Analyzer</p>
+        <ul>
+          <li>Detects resources shared <strong>outside your zone of trust</strong></li>
+          <li>Supported: S3, IAM roles, KMS keys, Lambda, SQS, Secrets Manager, SNS</li>
+          <li>Generates least-privilege policies from CloudTrail logs</li>
+          <li>Validates policies against IAM policy grammar and best practices</li>
+          <li>Zone of trust = account or AWS Organization</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">CloudTrail for IAM</p>
+        <ul>
+          <li>Logs all IAM API calls (management events by default)</li>
+          <li>Key events: <code>AssumeRole</code>, <code>CreateUser</code>, <code>AttachPolicy</code></li>
+          <li>Use EventBridge to trigger alerts on sensitive actions</li>
+          <li>S3 + Athena for ad-hoc investigation</li>
+          <li>Enable log file validation to detect tampering</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">AWS Config for IAM</p>
+        <ul>
+          <li>Managed rules: <code>iam-password-policy</code>, <code>iam-root-access-key-check</code>, <code>mfa-enabled-for-iam-console-access</code></li>
+          <li>Detect drift from security baseline continuously</li>
+          <li>Aggregator for multi-account compliance view</li>
+          <li>Remediation with SSM Automation</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">Secrets Manager vs Parameter Store</p>
+        <ul>
+          <li><strong>Secrets Manager</strong> — auto-rotation, cross-account, RDS/Redshift native integration</li>
+          <li><strong>SSM Parameter Store</strong> — free tier, no auto-rotation, use for non-secret config</li>
+          <li>Both use IAM resource-based policies for access control</li>
+          <li>Secrets Manager supports resource policies natively</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title">KMS + IAM integration</p>
+        <ul>
+          <li>KMS key policy is the <strong>primary</strong> access control mechanism</li>
+          <li>Key policy must explicitly give account root access OR it's locked out</li>
+          <li>IAM policy alone not sufficient — key policy must also allow</li>
+          <li>Grants: temporary, vend-able permissions on CMKs</li>
+          <li><code>kms:ViaService</code> condition — limit key use to specific AWS service</li>
+        </ul>
+        <div class="danger-box">Unlike most services, KMS key policy must explicitly allow the account; IAM alone won't work.</div>
+      </div>
+      <div class="card">
+        <p class="card-title">Cognito</p>
+        <ul>
+          <li><strong>User Pools</strong> — authentication (sign-up/sign-in, JWTs)</li>
+          <li><strong>Identity Pools</strong> — authorization (exchange JWT for AWS creds)</li>
+          <li>Supports unauthenticated (guest) roles</li>
+          <li>Enhanced flow vs basic flow for role mapping</li>
+          <li>Attribute mapping from IdP → Cognito attributes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXAM TIPS -->
+  <div class="section" id="exam">
+    <div class="grid2">
+      <div class="card">
+        <p class="card-title"><span class="badge badge-red">Must know</span> Classic gotchas</p>
+        <ul>
+          <li>SCPs do NOT grant permissions — they only restrict</li>
+          <li>Permission boundary ≠ explicit allow — still needs identity policy</li>
+          <li>Explicit Deny always wins — no exceptions</li>
+          <li>Root user cannot be restricted by SCPs</li>
+          <li>Service-linked roles cannot have trust policies edited</li>
+          <li>IAM is global — not region-specific</li>
+          <li>Groups cannot assume roles; roles cannot be members of groups</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title"><span class="badge badge-warn">Scenario</span> Least privilege patterns</p>
+        <ul>
+          <li>Use <code>NotAction</code> with <code>Deny</code> carefully — allows everything else</li>
+          <li>Use <code>aws:PrincipalOrgID</code> to restrict to org only</li>
+          <li>Use <code>aws:SourceVpc</code> / <code>aws:SourceVpce</code> for VPC-only access</li>
+          <li>Use IAM Access Analyzer + CloudTrail to generate least-priv policies</li>
+          <li>Require MFA with <code>aws:MultiFactorAuthPresent: true</code></li>
+          <li>Tag-based conditions for ABAC at scale</li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title"><span class="badge badge-blue">Scenario</span> When to use what</p>
+        <ul>
+          <li>Enforce org-wide controls → <strong>SCP</strong></li>
+          <li>Delegate admin safely → <strong>Permission boundary</strong></li>
+          <li>Cross-account S3 access → <strong>Bucket policy</strong> + identity policy</li>
+          <li>Temporary elevated access → <strong>AssumeRole</strong> + session policy</li>
+          <li>Human users → <strong>IAM Identity Center</strong></li>
+          <li>App creds → <strong>IAM roles</strong> (never access keys in code)</li>
+          <li>Find external sharing → <strong>IAM Access Analyzer</strong></li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="card-title"><span class="badge badge-green">Quick ref</span> Key condition keys</p>
+        <ul>
+          <li><code>aws:MultiFactorAuthPresent</code> — enforce MFA</li>
+          <li><code>aws:PrincipalOrgID</code> — org membership</li>
+          <li><code>aws:RequestedRegion</code> — region restriction</li>
+          <li><code>aws:SourceIp</code> / <code>aws:VpcSourceIp</code> — network restriction</li>
+          <li><code>aws:CalledVia</code> — restrict to calls via specific service</li>
+          <li><code>aws:SecureTransport</code> — enforce HTTPS/TLS</li>
+          <li><code>sts:ExternalId</code> — confused deputy prevention</li>
+          <li><code>s3:prefix</code> — S3 path-based access</li>
+        </ul>
+      </div>
+      <div class="card full">
+        <p class="card-title">SCS-C03 IAM domain — common question patterns</p>
+        <div class="grid3" style="margin-top:4px">
+          <div>
+            <p class="section-label">Access issues</p>
+            <ul>
+              <li>User can't access → check SCP → boundary → identity policy order</li>
+              <li>Cross-account denied → both sides must allow</li>
+              <li>Root can't be denied by SCP (trick Q!)</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label">Design questions</p>
+            <ul>
+              <li>Limit devs from creating over-permissive roles → permission boundary</li>
+              <li>Org-wide deny of region → SCP with <code>aws:RequestedRegion</code></li>
+              <li>Vendor access → ExternalId + least-privilege role</li>
+            </ul>
+          </div>
+          <div>
+            <p class="section-label">Audit / detect</p>
+            <ul>
+              <li>Who assumed a role → CloudTrail AssumeRole events</li>
+              <li>Detect unused permissions → Access Advisor</li>
+              <li>Find public S3 → Access Analyzer + Config rule</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
