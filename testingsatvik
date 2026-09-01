@@ -1,0 +1,1 @@
+{"@timestamp":"2026-09-01T12:15:42Z","event_type":"user.login","actor":"securonixtesting_jdoe","actor_ip":"203.0.113.10","user_agent":"Mozilla/5.0","authentication":"password+2fa","result":"success","organization":"AcmeCorp"}
